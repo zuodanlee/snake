@@ -14,34 +14,51 @@ if __name__ == "__main__":
     win = pygame.display.set_mode(size)
     run = True
 
+    alive = True
     snake = Snake(40, 40)
     apple = Apple()
     move_cooldown = 150
+    game_over = False
 
     # main loop
     while run:
-        snake_block = snake.get_rect()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                
+        if alive:
+            ui.redraw_game_window(win, snake.body, apple.get_pos())
+            keys = pygame.key.get_pressed()
 
-        keys = pygame.key.get_pressed()
+            if keys[K_LEFT]:
+                snake.turn("L")
+            if keys[K_RIGHT]:
+                snake.turn("R")
+            if keys[K_UP]:
+                snake.turn("U")
+            if keys[K_DOWN]:
+                snake.turn("D")
 
-        if keys[K_LEFT]:
-            snake.turn("L")
-        if keys[K_RIGHT]:
-            snake.turn("R")
-        if keys[K_UP]:
-            snake.turn("U")
-        if keys[K_DOWN]:
-            snake.turn("D")
-
-        if move_cooldown == 150:
-            snake.move(apple)
-            move_cooldown = 0
+            if move_cooldown == 150:
+                alive = snake.move(apple)
+                move_cooldown = 0
+            else:
+                move_cooldown += 1
+                
         else:
-            move_cooldown += 1
+            if not game_over:
+                ui.draw_game_over(win)
+                game_over = True
+            else:
+                keys = pygame.key.get_pressed()
 
-        ui.redraw_game_window(win, snake.body, apple.get_pos())
+                if keys[K_y]:
+                    alive = True
+                    snake = Snake(40, 40)
+                    apple = Apple()
+                    move_cooldown = 150
+                    game_over = False
+                elif keys[K_n]:
+                    run = False
     
